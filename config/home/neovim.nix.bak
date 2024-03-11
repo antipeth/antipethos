@@ -1,0 +1,313 @@
+{ config, pkgs, ... }:
+
+let
+  plugins = pkgs.vimPlugins;
+  theme = config.colorScheme.palette;
+in {
+  programs.nixvim = {
+    enable = true;
+
+    globals.mapleader = " "; # Sets the leader key to space
+    
+    options = {
+      clipboard="unnamedplus";
+      number = true;         # Show line numbers
+      relativenumber = true; # Show relative line numbers
+      shiftwidth = 2;        # Tab width should be 2
+      softtabstop = 2;
+      smartindent = true;
+      wrap = false;
+      swapfile = false;
+      backup = false;
+      hlsearch = false;
+      incsearch = true;
+      termguicolors = true;
+      scrolloff = 8;
+      updatetime = 50;
+    };
+
+    colorschemes.base16.enable = true;
+    colorschemes.base16.customColorScheme = {
+      base00 = "#${theme.base00}";
+      base01 = "#${theme.base01}";
+      base02 = "#${theme.base02}";
+      base03 = "#${theme.base03}";
+      base04 = "#${theme.base04}";
+      base05 = "#${theme.base05}";
+      base06 = "#${theme.base06}";
+      base07 = "#${theme.base07}";
+      base08 = "#${theme.base08}";
+      base09 = "#${theme.base09}";
+      base0A = "#${theme.base0A}";
+      base0B = "#${theme.base0B}";
+      base0C = "#${theme.base0C}";
+      base0D = "#${theme.base0D}";
+      base0E = "#${theme.base0E}";
+      base0F = "#${theme.base0F}";
+    };
+    
+    plugins = {
+      crates-nvim.enable = true;
+
+      # Coding
+    luasnip.enable = true;
+    nvim-cmp = {
+      enable = true;
+      snippet = { expand = "luasnip"; };
+      mapping = {
+        "<CR>" =
+          "cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Replace, })";
+        "<Tab>" = {
+          modes = [ "i" "s" ];
+          action = ''
+            function(fallback)
+              local luasnip = require 'luasnip'
+              if cmp.visible() then
+                cmp.select_next_item()
+              elseif luasnip.expandable() then
+                luasnip.expand();
+              elseif luasnip.expand_or_jumpable() then
+                luasnip.expand_or_jump()
+              else
+                fallback()
+              end
+            end
+          '';
+        };
+        "<S-Tab>" = {
+          modes = [ "i" "s" ];
+          action = ''
+            function(fallback)
+              local luasnip = require 'luasnip'
+              if cmp.visible() then
+                cmp.select_prev_item()
+              elseif luasnip.jumpable(-1) then
+                luasnip.jump(-1);
+              else
+                fallback()
+              end
+            end
+          '';
+        };
+        "<C-p>" = "cmp.mapping.select_prev_item()";
+        "<C-n>" = "cmp.mapping.select_next_item()";
+        "<C-d>" = "cmp.mapping.scroll_docs(-4)";
+        "<C-f>" = "cmp.mapping.scroll_docs(4)";
+        "<C-Space>" = "cmp.mapping.complete()";
+        "<C-e>" = "cmp.mapping.close()";
+      };
+      sources = [
+        { name = "luasnip"; }
+        { name = "path"; }
+        { name = "spell"; }
+        { name = "zsh"; }
+        { name = "crates"; }
+        { name = "buffer"; }
+        { name = "nvim_lsp"; }
+      ];
+    };
+
+      
+      ts-context-commentstring.enable = true;
+      comment-nvim.enable = true;
+      nvim-colorizer.enable = true;
+      nvim-autopairs.enable = true;
+
+      # Editor
+      
+      barbar = {
+        enable = true;
+        keymaps = {
+          silent = true;
+          previous = "<leader>tk";
+          next = "<leader>tj";
+          movePrevious = "<leader>th";
+          moveNext = "<leader>tl";
+          goTo1 = "<leader>t1";
+          goTo2 = "<leader>t2";
+          goTo3 = "<leader>t3";
+          goTo4 = "<leader>t4";
+          goTo5 = "<leader>t5";
+          goTo6 = "<leader>t6";
+          goTo7 = "<leader>t7";
+          goTo8 = "<leader>t8";
+          goTo9 = "<leader>t9";
+          last = "<leader>tL";
+          close = "<leader>tq";
+        };
+        sidebarFiletypes = { NeoTree = true; };
+      };
+      neo-tree.enable = true;
+      flash.enable = true;
+      which-key.enable = true;
+      gitsigns.enable = true;
+      trouble.enable = true;
+      telescope = {
+        enable = true;
+        extensions = {
+          file_browser.enable = true;
+          project-nvim.enable = true;
+        };
+        keymaps = {
+      "<leader>fb" = "buffers";
+      "<leader>ff" = "find_files";
+      "<leader>fg" = "live_grep";
+      "<leader>fh" = "help_tags";
+
+      # lsp
+      "<leader>fci" = "lsp_incoming_calls";
+      "<leader>fco" = "lsp_outgoing_calls";
+      "<leader>fd" = "lsp_definitions";
+      "<leader>fD" = "lsp_diagnostics";
+      "<leader>fi" = "lsp_implementations";
+      "<leader>fr" = "lsp_references";
+      "<leader>fsd" = "lsp_document_symbols";
+      "<leader>fsw" = "lsp_workspace_symbols";
+      "<leader>ft" = "lsp_type_definitions";
+        };
+      };
+      project-nvim.enable = true;
+
+      # Formatting
+      conform-nvim.enable = true;
+
+      # Linting
+      lint.enable = true ;
+
+      # LSP
+      lsp = {
+        enable = true;
+        servers = {
+          astro.enable = true;
+          bashls.enable = true;
+          clangd.enable = true;
+          cmake.enable = true;
+          cssls.enable = true;
+          dockerls.enable = true;
+          html.enable = true;
+          java-language-server.enable = true;
+          jsonls.enable = true;
+          lua-ls.enable = true;
+          nixd.enable = true;
+          pyright.enable = true;
+          rust-analyzer = {
+            enable = true;
+            installRustc = true;
+            installCargo = true;
+          };
+          tailwindcss.enable = true;
+          tsserver.enable = true;
+          yamlls.enable = true;
+        };
+      };
+
+      # DAP
+      dap = {
+        enable = true;
+        extensions = {
+          dap-ui.enable = true;
+          dap-virtual-text.enable = true;
+        };
+      };
+      rust-tools.enable = true;
+      # nvim-jdtls.enable = true;
+      clangd-extensions.enable = true;
+      markdown-preview.enable = true;
+
+      # TreeSitter
+      treesitter = {
+        enable = true;
+        nixGrammars = true;
+      };
+      treesitter-textobjects.enable = true;
+      treesitter-context.enable = true;
+      ts-autotag.enable = true;
+
+      # UI
+      barbecue.enable = true;
+      notify.enable = true;
+      bufferline.enable = true;
+      lualine.enable = true;
+      indent-blankline.enable = true;
+      noice.enable = true;
+      alpha = {
+        enable = true;
+        layout = [
+        {
+          type = "padding";
+          val = 2;
+        }
+        {
+          opts = {
+            hl = "Type";
+            position = "center";
+          };         
+          type = "text";
+          val = [
+            " █████╗ ███╗   ██╗████████╗██╗██████╗ ███████╗████████╗██╗  ██╗"
+            "██╔══██╗████╗  ██║╚══██╔══╝██║██╔══██╗██╔════╝╚══██╔══╝██║  ██║"
+            "███████║██╔██╗ ██║   ██║   ██║██████╔╝█████╗     ██║   ███████║"
+            "██╔══██║██║╚██╗██║   ██║   ██║██╔═══╝ ██╔══╝     ██║   ██╔══██║"
+            "██║  ██║██║ ╚████║   ██║   ██║██║     ███████╗   ██║   ██║  ██║"
+            "╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝     ╚══════╝   ╚═╝   ╚═╝  ╚═╝"
+          ];
+        }
+        {
+          type = "padding";
+          val = 2;
+        }
+        {
+          type = "group";
+          val = [
+          {
+            on_press = {
+              __raw = "function() vim.cmd[[ene]] end";
+          };
+            opts = {
+              shortcut = "n";
+          };
+            type = "button";
+            val = "  New file";
+          }
+          {
+            on_press = {
+              __raw = "function() vim.cmd[[qa]] end";
+          };
+          opts = {
+            shortcut = "q";
+          };
+          type = "button";
+          val = " Quit Neovim";
+          }
+          ];
+          }
+          {
+            type = "padding";
+            val = 2;
+          }
+          {
+            opts = {
+              hl = "Keyword";
+              position = "center";
+            };
+            type = "text";
+            val = "Inspiring quote here.";
+          }
+        ];
+      };
+
+      # NIX
+      nix.enable = true;
+  };
+
+
+    extraConfigVim = ''
+      set noshowmode
+      inoremap jj <ESC>
+    '';
+
+
+
+
+  };
+ } 
